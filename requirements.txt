@@ -3,3 +3,4 @@ uvicorn
 requests
 datetime
 pyinstaller
+python-multipart
