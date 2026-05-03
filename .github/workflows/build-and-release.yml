@@ -52,7 +52,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13.13'
           architecture: ${{ matrix.arch }}
 
       - name: Install dependencies
@@ -67,7 +67,6 @@ jobs:
             --standalone `
             --onefile `
             --windows-console-mode=disable `
-            --windows-icon-from-ico=icon.ico `
             --product-name="TCP安全转发服务" `
             --file-version=${{ github.event.inputs.version || github.ref_name }} `
             --product-version=${{ github.event.inputs.version || github.ref_name }} `
