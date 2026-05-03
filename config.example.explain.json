@@ -1,0 +1,18 @@
+{
+    "authHttpPort": 3390, // 认证端口
+    "tcpPort": 3391, // 服务转发到的TCP端口
+    "targetIp": "127.0.0.1", // 连接目标IP(建议内网)
+    "targetPort": 3389, // 连接目标端口
+    "authPassword": "YOUR_PASSWORD_HERE", // 访问认证密码
+    "whitelistTimeout": 3600, // 认证有效期, 即为每次认证成功后的开放时间, 超过该时间需重新登录(单位秒)
+    "persistWhitelist": false, // 持久化白名单保存(存放于当前目录/whitelist.json)
+    "pushNotification": { // 推送服务(目前只有Server酱3的推送服务: sc3.ft07.com )
+        "enabled": true, // 启用开关
+        "service": "serverchan", // 推送服务名称(目前只有Server酱3, 也就是 sc3.ft07.com)
+        "sendKey": "your_uid_your_sendkey", // SendKey(发送KEY)
+        "maxAttempts": 10, // 单IP认证最大密码尝试次数(超过该次数将会发送警报并且封禁)
+        "timeWindow": 60, //
+        "banDuration": 1800, // 封禁时长 (单位秒)
+        "reportCount": 10 // 报告前<reportCount>个尝试密码数量,若数值超过maxAttempts将会显示前<maxAttempts>个尝试密码
+    }
+}

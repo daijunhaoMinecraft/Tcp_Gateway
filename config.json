@@ -1,0 +1,18 @@
+{
+    "authHttpPort": 3390,
+    "tcpPort": 3391,
+    "targetIp": "127.0.0.1",
+    "targetPort": 3389,
+    "authPassword": "PASSWORD",
+    "whitelistTimeout": 3600,
+    "persistWhitelist": false,
+    "pushNotification": {
+        "enabled": false,
+        "service": "serverchan",
+        "sendKey": "",
+        "maxAttempts": 10,
+        "timeWindow": 60,
+        "banDuration": 1800,
+        "reportCount": 10
+    }
+}
