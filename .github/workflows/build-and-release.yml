@@ -60,6 +60,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set version string
+        id: version
+        run: |
+          $version = "${{ github.event.inputs.version || github.ref_name }}"
+          $version = $version -replace '^v', ''
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "tag=${{ github.event.inputs.version || github.ref_name }}" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+        if: runner.os == 'Windows'
+
+      - name: Set version string
+        id: version_unix
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          VERSION=${VERSION#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${{ github.event.inputs.version || github.ref_name }}" >> $GITHUB_OUTPUT
+        if: runner.os != 'Windows'
+
       - name: Build with Nuitka (Windows)
         if: runner.os == 'Windows'
         run: |
@@ -68,8 +87,8 @@ jobs:
             --onefile `
             --windows-console-mode=disable `
             --product-name="TCP安全转发服务" `
-            --file-version=${{ github.event.inputs.version || github.ref_name }} `
-            --product-version=${{ github.event.inputs.version || github.ref_name }} `
+            --file-version=${{ steps.version.outputs.version }}.0 `
+            --product-version=${{ steps.version.outputs.version }} `
             --company-name="TCP Gateway" `
             --file-description="TCP Security Forwarding Service" `
             --output-dir=dist `
@@ -160,8 +179,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.version || github.ref_name }}
-          name: Release ${{ github.event.inputs.version || github.ref_name }}
+          tag_name: ${{ steps.version_unix.outputs.tag || github.ref_name }}
+          name: Release ${{ steps.version_unix.outputs.tag || github.ref_name }}
           body: ${{ steps.release_notes.outputs.notes }}
           files: release-files/*
           draft: false
