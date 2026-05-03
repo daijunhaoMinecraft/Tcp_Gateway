@@ -56,3 +56,6 @@
 ![image-20260503182004991](https://raw.githubusercontent.com/daijunhaoMinecraft/Image/main/mainimage-20260503182004991.png)
 
 ![image-20260503182045438](https://raw.githubusercontent.com/daijunhaoMinecraft/Image/main/mainimage-20260503182045438.png)
+
+## 鸣谢
+感谢 [Linux.do] (https://linux.do) 的宣传
