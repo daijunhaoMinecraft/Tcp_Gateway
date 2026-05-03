@@ -21,8 +21,211 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+AUTH_TEMPLATE = """
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="robots" content="noindex, nofollow">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{notice_bar}}
+
+	<title>访问认证</title>
+	<style>
+		body {
+			font-family: 'Microsoft YaHei';
+			background: rgb(241, 241, 241);
+			padding: 48px 16px 0 16px;
+		}
+
+		.Main,
+		.notice {
+			margin: 0 auto;
+			max-width: 35em;
+			opacity: 0.87;
+			box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
+			border-radius: 2px;
+		}
+
+		.notice {
+			padding: 16px 24px;
+			max-width: calc(35em + 16px);
+			background: #f8332c;
+			color: white;
+			margin-bottom: 16px;
+		}
+
+		.Main {
+			padding: 24px 32px;
+			background: white;
+			position: relative;
+		}
+
+		.textbox {
+			border: rgb(225, 229, 232) solid 2px;
+			box-sizing: border-box;
+			font-size: 14px;
+			font-weight: 400;
+			height: 40px;
+			padding: 0px 16px;
+			display: flex;
+			flex-grow: 1;
+		}
+
+		.divider {
+			width: 100%;
+			border-top: 1px solid #e1e1e1;
+			text-align: center;
+			margin-top: 20px;
+		}
+
+		.divider span {
+			display: inline-block;
+			position: relative;
+			padding: 0 17px;
+			top: -11px;
+			font-size: 16px;
+			background-color: #fff;
+			color: #333;
+		}
+
+		.button {
+			color: #fff;
+			border: 0;
+			background-color: #1d74f5;
+			position: relative;
+			display: flex;
+			height: 40px;
+			min-height: 40px;
+			padding: 0 1.5rem;
+			cursor: pointer;
+			transition: opacity .3s, background-color .3s, color .3s;
+			text-align: center;
+			font-size: .875rem;
+			font-weight: 600;
+			-webkit-box-align: center;
+			align-items: center;
+			-webkit-box-pack: center;
+			justify-content: center;
+			border-radius: 2px;
+		}
+
+		.button:hover {
+			opacity: .6;
+		}
+
+		.button:active {
+			transform: translateY(2px);
+			opacity: .9;
+		}
+
+		input:focus {
+			outline: none;
+		}
+
+		.switch {
+			flex-shrink: 0;
+			position: relative;
+			display: inline-block;
+			width: 52px;
+			height: 30px;
+		}
+
+		.switch input {
+			opacity: 0;
+			width: 0;
+			height: 0;
+		}
+
+		.slider {
+			position: absolute;
+			cursor: pointer;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: #ccc;
+			-webkit-transition: .4s;
+			transition: .4s;
+			border-radius: 30px;
+		}
+
+		.slider:before {
+			position: absolute;
+			content: "";
+			height: 22px;
+			width: 22px;
+			left: 4px;
+			bottom: 4px;
+			background-color: white;
+			-webkit-transition: .4s;
+			transition: .4s;
+			border-radius: 50%;
+		}
+
+		input:checked+.slider {
+			background-color: #2196F3;
+		}
+
+		input:focus+.slider {
+			box-shadow: 0 0 1px #2196F3;
+		}
+
+		input:checked+.slider:before {
+			-webkit-transform: translateX(22px);
+			transform: translateX(22px);
+		}
+
+		@media all and (max-width: 600px) {
+			body {
+				padding: 48px 8px 0 8px;
+			}
+
+			.Main {
+				padding: 16px 24px 24px 24px;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	
+	<div class="Main">
+		<h1 style="margin: 0;margin-bottom: 8px">访问认证</h1>
+		<p style="margin-top: 8px">当前 IP (<b style="color: olive">{{Auth_Client_IP}}</b>) 尚未完成访问认证, 无法访问此隧道</p>
+		<form action="#" method="post">
+			<div style="display: flex;margin-bottom: 16px;flex-wrap: wrap;gap: 16px">
+				<div style="display: flex;gap: 16px;flex-direction: column;flex: 20">
+					
+					<input class="textbox" type="password" name="pw" id="pw" placeholder="访问密码" autocomplete="current-password" />
+					
+					
+				</div>
+				<input class="button" type="submit" value="提交" style="flex: 1" />
+			</div>
+			<input type="hidden" name="csrf" value="0000000000000000">
+			<input type="hidden" name="ip" value="{{Auth_Client_IP}}">
+		</form>
+		<style>
+			@media all and (max-width: 340px) {
+				#qr-button {
+					display: none;
+				}
+			}
+		</style>
+	</div>
+</body>
+
+</html>
+
+"""
+
 # 路径配置
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
+#获取当前执行exe的路径
+pathx_pyinstaller = os.path.dirname(os.path.realpath(sys.argv[0]))
 
 # 默认配置模板
 CONFIG_TEMPLATE = {
@@ -59,7 +262,7 @@ def load_config():
     """加载配置文件，失败则使用默认配置"""
     global HTTP_PORT, TCP_PORT, TARGET_IP, TARGET_PORT, ACCESS_PASSWORD, WHITELIST_TIMEOUT, PERSIST_WHITELIST, PUSH_CONFIG
     
-    config_path = pathlib.Path(CURRENT_PATH) / "config.json"
+    config_path = pathlib.Path(pathx_pyinstaller) / "config.json"
     
     try:
         if not config_path.exists():
@@ -246,116 +449,21 @@ def get_auth_html(client_ip: str, error_msg: str = "") -> str:
                     del failed_login_attempts[client_ip]
     
     if error_msg:
-        notice_bar = f"<div class='notice'>⚠ {error_msg}</div>"
+        notice_bar = f"<div class='notice'>{error_msg}</div>"
     
-    auth_html_path = pathlib.Path(CURRENT_PATH) / "Auth.html"
-    
+    auth_html_path = pathlib.Path(pathx_pyinstaller) / "Auth.html"
+    if not os.path.exists(auth_html_path):
+        print("未在当前路径下发现Auth.html文件, 已自动创建默认模板文件")
+        with open (auth_html_path, "w", encoding="utf-8") as f:
+            f.write(AUTH_TEMPLATE)
+            f.close()
+
     try:
         with open(auth_html_path, "r", encoding="utf-8") as f:
             template = f.read()
     except FileNotFoundError:
         logging.warning("Auth.html 文件不存在，使用内置模板")
-        template = """<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<meta name="robots" content="noindex, nofollow">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{notice_bar}}
-	<title>访问认证</title>
-	<style>
-		body {
-			font-family: 'Microsoft YaHei';
-			background: rgb(241, 241, 241);
-			padding: 48px 16px 0 16px;
-		}
-		.Main,
-		.notice {
-			margin: 0 auto;
-			max-width: 35em;
-			opacity: 0.87;
-			box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 3px 1px -2px rgba(0, 0, 0, .2), 0 1px 5px 0 rgba(0, 0, 0, .12);
-			border-radius: 2px;
-		}
-		.notice {
-			padding: 16px 24px;
-			max-width: calc(35em + 16px);
-			background: #f8332c;
-			color: white;
-			margin-bottom: 16px;
-		}
-		.Main {
-			padding: 24px 32px;
-			background: white;
-			position: relative;
-		}
-		.textbox {
-			border: rgb(225, 229, 232) solid 2px;
-			box-sizing: border-box;
-			font-size: 14px;
-			font-weight: 400;
-			height: 40px;
-			padding: 0px 16px;
-			display: flex;
-			flex-grow: 1;
-		}
-		.button {
-			color: #fff;
-			border: 0;
-			background-color: #1d74f5;
-			position: relative;
-			display: flex;
-			height: 40px;
-			min-height: 40px;
-			padding: 0 1.5rem;
-			cursor: pointer;
-			transition: opacity .3s, background-color .3s, color .3s;
-			text-align: center;
-			font-size: .875rem;
-			font-weight: 600;
-			-webkit-box-align: center;
-			align-items: center;
-			-webkit-box-pack: center;
-			justify-content: center;
-			border-radius: 2px;
-		}
-		.button:hover {
-			opacity: .6;
-		}
-		.button:active {
-			transform: translateY(2px);
-			opacity: .9;
-		}
-		input:focus {
-			outline: none;
-		}
-		@media all and (max-width: 600px) {
-			body {
-				padding: 48px 8px 0 8px;
-			}
-			.Main {
-				padding: 16px 24px 24px 24px;
-			}
-		}
-	</style>
-</head>
-<body>
-	<div class="Main">
-		<h1 style="margin: 0;margin-bottom: 8px">访问认证</h1>
-		<p style="margin-top: 8px">当前 IP (<b style="color: olive">{{Auth_Client_IP}}</b>) 尚未完成访问认证, 无法访问此TCP隧道</p>
-		<form action="#" method="post">
-			<div style="display: flex;margin-bottom: 16px;flex-wrap: wrap;gap: 16px">
-				<div style="display: flex;gap: 16px;flex-direction: column;flex: 20">
-					<input class="textbox" type="password" name="pw" id="pw" placeholder="访问密码" autocomplete="current-password" />
-				</div>
-				<input class="button" type="submit" value="提交" style="flex: 1" />
-			</div>
-			<input type="hidden" name="csrf" value="0000000000000000">
-			<input type="hidden" name="ip" value="{{Auth_Client_IP}}">
-		</form>
-	</div>
-</body>
-</html>"""
+        template = AUTH_TEMPLATE
     
     return template.replace("{{Auth_Client_IP}}", client_ip).replace("{{notice_bar}}", notice_bar)
 
@@ -798,7 +906,7 @@ if __name__ == '__main__':
         main()
     except PermissionError:
         logging.error("权限不足或端口被占用，请以管理员身份运行。")
-        print("❌ 权限不足或端口被占用，请以管理员身份运行。")
+        print("权限不足或端口被占用，请以管理员身份运行。")
     except Exception as e:
         logging.error(f"启动失败：{e}")
-        print(f"❌ 启动失败：{e}")
+        print(f"启动失败：{e}")
